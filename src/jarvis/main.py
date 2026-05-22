@@ -9,6 +9,7 @@ import structlog
 
 from jarvis.config import get_settings
 from jarvis.api.routes import chat, health, tools
+from jarvis.api.websocket import register_websocket
 from jarvis.memory.manager import MemoryManager
 from jarvis.llm.ollama_client import OllamaClient
 from jarvis.tools.registry import ToolRegistry
@@ -69,6 +70,9 @@ def create_app() -> FastAPI:
     app.include_router(health.router, tags=["health"])
     app.include_router(chat.router, prefix="/api/v1", tags=["chat"])
     app.include_router(tools.router, prefix="/api/v1", tags=["tools"])
+
+    # Register WebSocket
+    register_websocket(app)
 
     return app
 

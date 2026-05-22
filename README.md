@@ -136,11 +136,11 @@ jarvis/
 ## Development Roadmap
 
 - [x] **Phase 1** - MVP: Chat + CLI + API + Basic Tools
-- [ ] **Phase 2** - Memory: ChromaDB RAG + Semantic Search
-- [ ] **Phase 3** - Voice: Whisper STT + Kokoro TTS
-- [ ] **Phase 4** - Automation: Browser + System Control
-- [ ] **Phase 5** - Multi-Agent: LangGraph orchestration
-- [ ] **Phase 6** - Ecosystem: All integrations + Web UI
+- [x] **Phase 2** - Memory: ChromaDB RAG + Semantic Search
+- [x] **Phase 3** - Voice: Whisper STT + Kokoro TTS
+- [x] **Phase 4** - Automation: Browser + System Control + Workflows
+- [x] **Phase 5** - Multi-Agent: LangGraph orchestration + Router
+- [ ] **Phase 6** - Ecosystem: Web UI + remaining integrations
 
 ## API Endpoints
 
