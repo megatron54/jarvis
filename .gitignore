@@ -27,6 +27,10 @@ node_modules/
 
 *.db
 *.sqlite3
+.jarvis_backend.pid
+
+# Rust
+target/
 
 .idea/
 .vscode/
