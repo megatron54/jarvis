@@ -18,6 +18,9 @@ pub fn start() {
         return;
     }
 
+    // Ensure Python dependencies are installed
+    ensure_dependencies(&project_dir);
+
     // Start the backend with uvicorn
     let child = Command::new("python")
         .args(["-m", "uvicorn", "jarvis.main:app", "--host", "0.0.0.0", "--port", "8080"])
@@ -58,7 +61,7 @@ pub fn start() {
 pub fn wait_ready() {
     let client = reqwest::blocking::Client::new();
 
-    for _ in 0..20 {
+    for _ in 0..40 {
         thread::sleep(Duration::from_millis(500));
         let resp = client
             .get("http://localhost:8080/health")
@@ -120,5 +123,39 @@ pub fn print_status() {
         println!("  {} API running at http://localhost:8080", "●".green());
     } else {
         println!("  {} API not running", "●".red());
+    }
+}
+
+fn ensure_dependencies(project_dir: &std::path::Path) {
+    // Check if jarvis is importable
+    let check = Command::new("python")
+        .args(["-c", "import jarvis"])
+        .env("PYTHONPATH", project_dir.join("src").to_str().unwrap_or("src"))
+        .stdout(Stdio::null())
+        .stderr(Stdio::null())
+        .status();
+
+    let needs_install = match check {
+        Ok(s) => !s.success(),
+        Err(_) => true,
+    };
+
+    if needs_install {
+        println!("  {} Installing Python dependencies (first run)...", "!".yellow());
+        let status = Command::new("pip")
+            .args(["install", "-e", "."])
+            .current_dir(project_dir)
+            .stdout(Stdio::null())
+            .stderr(Stdio::null())
+            .status();
+
+        match status {
+            Ok(s) if s.success() => {
+                println!("  {} Dependencies installed", "✓".green());
+            }
+            _ => {
+                eprintln!("  {} Failed to install dependencies. Run manually: pip install -e .", "✗".red());
+            }
+        }
     }
 }
