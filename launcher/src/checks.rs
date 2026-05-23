@@ -49,8 +49,45 @@ fn check_docker_running() -> bool {
             true
         }
         _ => {
-            println!("  {} {} - {}", "✗".red(), "Docker daemon", "NOT RUNNING".red());
-            println!("    → Start Docker Desktop or run: sudo systemctl start docker");
+            println!("  {} {} - starting Docker Desktop...", "!".yellow(), "Docker daemon");
+            // Try to start Docker Desktop on Windows
+            #[cfg(target_os = "windows")]
+            {
+                std::process::Command::new("cmd")
+                    .args(["/C", "start", "", "C:\\Program Files\\Docker\\Docker\\Docker Desktop.exe"])
+                    .stdout(std::process::Stdio::null())
+                    .stderr(std::process::Stdio::null())
+                    .spawn()
+                    .ok();
+            }
+            #[cfg(target_os = "linux")]
+            {
+                std::process::Command::new("systemctl")
+                    .args(["start", "docker"])
+                    .stdout(std::process::Stdio::null())
+                    .stderr(std::process::Stdio::null())
+                    .status()
+                    .ok();
+            }
+
+            // Wait up to 60s for Docker to be ready
+            println!("    Waiting for Docker daemon (up to 60s)...");
+            for _ in 0..30 {
+                std::thread::sleep(std::time::Duration::from_secs(2));
+                let check = std::process::Command::new("docker")
+                    .args(["info"])
+                    .stdout(std::process::Stdio::null())
+                    .stderr(std::process::Stdio::null())
+                    .status();
+                if let Ok(s) = check {
+                    if s.success() {
+                        println!("  {} {}", "✓".green(), "Docker daemon started successfully");
+                        return true;
+                    }
+                }
+            }
+            println!("  {} {} - {}", "✗".red(), "Docker daemon", "FAILED TO START".red());
+            println!("    → Start Docker Desktop manually and retry");
             false
         }
     }
